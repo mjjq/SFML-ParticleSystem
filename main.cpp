@@ -84,7 +84,7 @@ int main()
 
         pSource.updateParticles(1.0f);
 
-        pSource.draw(window, state);
+        pSource.draw(window, &state);
 
         //window.draw(circle);
 

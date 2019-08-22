@@ -86,9 +86,12 @@ public:
             currTime = 0.0f;
     }
 
-    void draw(sf::RenderWindow& window, sf::RenderStates& state)
+    void draw(sf::RenderWindow& window, sf::RenderStates* state = nullptr)
     {
-        window.draw(verts.data(), verts.size(), sf::Points, state);
+        if(state != nullptr)
+            window.draw(verts.data(), verts.size(), sf::Points, *state);
+        else
+            window.draw(verts.data(), verts.size(), sf::Points);
     }
 
     void setPosition(sf::Vector2f position) { sourcePosition = position; }
