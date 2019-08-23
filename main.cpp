@@ -41,11 +41,11 @@ int main()
         sf::Vector2f v0 = {5.0f*constant, 5.0f*constant2};
 
         float exp = 1.0f - pow(2.71828, -alpha * t);
-        sf::Vector2f f = t * g +  exp * 1.0f/alpha * (v0 - g);
+        sf::Vector2f f = t * g +  exp * 1.0f/alpha * (v0 - g) + 5.0f*v0;
 
         float f1 = 20.0f*log(1.0f + 50.0f*t);
         float f2 = 20.0f*log(1.0f + 50.0f*t);
-        float x = 1.0f*constant * f1;
+        float x = 1.0f*constant * f1 + 200.0f;
         float y = 1.0f*constant2 * f2;
 
         float temp = pow(2.71828, - 0.5f * t / p.lifetime);
@@ -54,7 +54,20 @@ int main()
         p.position = f + p.initialPosition;
     };
 
-    ParticleSource pSource(500, 80.0f, pF2);
+    VecFunction pF3 = [](float t, Particle& p) {
+        float constant = 1.0f * (float)(p.seed - RAND_MAX/2)/(float)RAND_MAX;
+
+        float constant2 = 1.0f * (float)(p.seed2 - RAND_MAX/2)/(float)RAND_MAX;
+
+        float x = 20.0f * (constant + 5.0f) * cosf(0.01f*t + 0.5f*3.141f*constant2);
+        float y = 20.0f * (constant + 5.0f) * sinf(0.062f*t + 0.5f*3.141f*constant2);
+
+        uint8_t value = 255/(1.0f + 0.2f*t);
+        p.color = sf::Color(value, 0, value);
+        p.position = sf::Vector2f{x,y} + p.initialPosition;
+    };
+
+    ParticleSource pSource(100, 60.0f, pF);
 
     sf::Shader shader;
     shader.loadFromFile("test.vert", "test.geom", "test.frag");

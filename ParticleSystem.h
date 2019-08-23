@@ -36,6 +36,10 @@ class ParticleSource
     VecFunction pathFunction;
 
     sf::Vector2f sourcePosition = {0.0f, 0.0f};
+    sf::Vector2f previousSourcePos = sourcePosition;
+    sf::Vector2f nextSourcePos = sourcePosition;
+
+    bool interpolation = true;
 
 public:
     ParticleSource(unsigned int numParticles,
@@ -72,13 +76,23 @@ public:
             {
                 particles[i].seed = rand();
                 particles[i].seed2 = rand();
-                particles[i].initialPosition = sourcePosition;
-                //std::cout << particles[i].seed << " newseed\n";
+
+                if(interpolation)
+                {
+                    float proportion = (float)i/(float)(particles.size()-1);
+                    particles[i].initialPosition = proportion * (nextSourcePos - previousSourcePos) +
+                                                previousSourcePos;
+                }
+                else
+                    particles[i].initialPosition = sourcePosition;
             }
 
             pathFunction(newTime, particles[i]);
             verts[i].position = particles[i].position;
             verts[i].color = particles[i].color;
+
+            if(i==particles.size()-1 && interpolation)
+                previousSourcePos = nextSourcePos;
         }
 
         currTime += dt;
@@ -94,7 +108,26 @@ public:
             window.draw(verts.data(), verts.size(), sf::Points);
     }
 
-    void setPosition(sf::Vector2f position) { sourcePosition = position; }
+    void setPosition(sf::Vector2f position)
+    {
+        if(interpolation)
+        {
+            previousSourcePos = nextSourcePos;
+            nextSourcePos = position;
+            sourcePosition = previousSourcePos;
+        }
+        else
+            sourcePosition = position;
+    }
+
+    int getParticleCount() { return particles.size(); }
+
+    Particle const & getParticle(unsigned int index)
+    {
+        return particles[index];
+    }
+
+    void setInterpolation(bool value) { interpolation = value; }
 };
 
 #endif // PARTICLE_SYSTEM_H
